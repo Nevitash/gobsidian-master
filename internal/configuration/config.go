@@ -1,21 +1,46 @@
 package configuration
 
 import (
+	"fmt"
 	"log"
 	"os"
+	"strings"
 
+	"github.com/gobwas/glob"
 	"gopkg.in/yaml.v3"
 )
 
 var config *Config
 
 type Config struct {
-	ConfigPath        string   `yaml:"config-path"`
-	VaultPath         string   `yaml:"vault-path"`
-	IncludePatterns   []string `yaml:"include-patterns"`
-	ExcludePatterns   []string `yaml:"exclude-patterns"`
-	IncludeExtentions []string `yaml:"include-extensions"`
-	ExcludeExtensions []string `yaml:"exclude-extensions"`
+	ConfigPath      string   `yaml:"config-path"`
+	VaultPath       string   `yaml:"vault-path"`
+	IncludePatterns []string `yaml:"include-patterns"`
+	ExcludePatterns []string `yaml:"exclude-patterns"`
+}
+
+func (c *Config) GetIncludeGlob() (glob.Glob, error) {
+	globPattern, err := prepareGlobPattern(c.IncludePatterns)
+	if err != nil {
+		return nil, err
+	}
+	return glob.Compile(globPattern)
+}
+
+func (c *Config) GetExcludeGlob() (glob.Glob, error) {
+	globPattern, err := prepareGlobPattern(c.ExcludePatterns)
+	if err != nil {
+		return nil, err
+	}
+	return glob.Compile(globPattern)
+}
+
+func prepareGlobPattern(patterns []string) (string, error) {
+	if len(patterns) == 0 {
+		return "", fmt.Errorf("no patterns provided")
+	}
+	joinedPatterns := strings.Join(patterns, ",")
+	return fmt.Sprintf("{%v}", joinedPatterns), nil
 }
 
 func SetConfig(newConfig *Config) {
