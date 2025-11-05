@@ -1,0 +1,7 @@
+config-path: ./config.yaml
+vault-path: ""
+include-patterns: []
+exclude-patterns: []
+include-extensions:
+    - .md
+exclude-extensions: []
