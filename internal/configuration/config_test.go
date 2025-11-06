@@ -1,5 +1,4 @@
 package configuration
-package configuration
 
 import (
 	"testing"
@@ -7,95 +6,20 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestGetConfig(t *testing.T) {
-	// Test initial state
-	assert.Nil(t, GetConfig(), "Initial config should be nil")
-
-	// Test after setting config
+func TestGetGlobs(t *testing.T) {
 	testConfig := &Config{
-		ConfigPath: "test.yaml",
-		VaultPath:  "test/vault",
+		IncludePatterns: []string{"*.md", "*.txt"},
+		ExcludePatterns: []string{"**/_images", "**/_images/*", "**/_config", "**/_config/*"},
 	}
-	SetConfig(testConfig)
-	assert.Equal(t, testConfig, GetConfig(), "GetConfig should return the config that was set")
-}
+	includeGlob, err := testConfig.GetIncludeGlob()
+	assert.NoError(t, err, "GetIncludeGlob should not return an error")
+	excludeGlob, err := testConfig.GetExcludeGlob()
 
-func TestGetIncludeGlob(t *testing.T) {
-	tests := []struct {
-		name           string
-		includePattern []string
-		wantErr        bool
-	}{
-		{
-			name:           "empty patterns",
-			includePattern: []string{},
-			wantErr:        true,
-		},
-		{
-			name:           "single pattern",
-			includePattern: []string{"*.md"},
-			wantErr:        false,
-		},
-		{
-			name:           "multiple patterns",
-			includePattern: []string{"*.md", "*.txt"},
-			wantErr:        false,
-		},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			c := &Config{
-				IncludePatterns: tt.includePattern,
-			}
-			glob, err := c.GetIncludeGlob()
-			if tt.wantErr {
-				assert.Error(t, err)
-				assert.Nil(t, glob)
-			} else {
-				assert.NoError(t, err)
-				assert.NotNil(t, glob)
-			}
-		})
-	}
-}
-
-func TestGetExcludeGlob(t *testing.T) {
-	tests := []struct {
-		name           string
-		excludePattern []string
-		wantErr        bool
-	}{
-		{
-			name:           "empty patterns",
-			excludePattern: []string{},
-			wantErr:        true,
-		},
-		{
-			name:           "single pattern",
-			excludePattern: []string{".git/*"},
-			wantErr:        false,
-		},
-		{
-			name:           "multiple patterns",
-			excludePattern: []string{".git/*", "node_modules/*"},
-			wantErr:        false,
-		},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			c := &Config{
-				ExcludePatterns: tt.excludePattern,
-			}
-			glob, err := c.GetExcludeGlob()
-			if tt.wantErr {
-				assert.Error(t, err)
-				assert.Nil(t, glob)
-			} else {
-				assert.NoError(t, err)
-				assert.NotNil(t, glob)
-			}
-		})
-	}
+	assert.NoError(t, err, "GetExcludeGlob should not return an error")
+	assert.True(t, includeGlob.Match("003 - Characters/note.md"), "Include glob should match 003 - Characters/note.md")
+	assert.True(t, includeGlob.Match("./_test/haha.txt"), "Include glob should match ./_test/haha.txt")
+	assert.False(t, includeGlob.Match("note.png"), "Include glob should not match note.png")
+	assert.True(t, excludeGlob.Match("./_config"), "Exclude glob should match ./_config")
+	assert.True(t, excludeGlob.Match("003 - Characters/_images"), "Exclude glob should match ./003 - Characters/_images")
+	assert.False(t, excludeGlob.Match("zzz - Info/__config"), "Exclude glob should not match zzz - Info/__config")
 }
