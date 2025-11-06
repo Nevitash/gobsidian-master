@@ -3,18 +3,21 @@ package main
 import (
 	"log"
 	"nevitash/gobsidain-master/internal/configuration"
+	"nevitash/gobsidain-master/internal/file"
 )
 
-var defaultConfigPath = "./config.yaml"
+var DEFAULT_PATH_CONFIG = "./resources/config.yaml"
+var DEFAULT_PATH_VAULT = "./resources/vault"
 var config *configuration.Config
 
 func main() {
-	configPath := defaultConfigPath
+	configPath := DEFAULT_PATH_CONFIG
 	config, err := setupConfiguration(configPath)
 	if err != nil {
 		log.Fatalf("Failed to setup configuration: %v", err)
 	}
 	configuration.SetConfig(config)
+	file.LoadVaultFile(DEFAULT_PATH_VAULT, configuration.GetConfig())
 }
 
 func setupConfiguration(configPath string) (*configuration.Config, error) {
