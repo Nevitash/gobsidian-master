@@ -19,20 +19,30 @@ type Config struct {
 	ExcludePatterns []string `yaml:"exclude-patterns"`
 }
 
-func (c *Config) GetIncludeGlob() (glob.Glob, error) {
+func (c *Config) GetIncludeGlob() glob.Glob {
 	globPattern, err := prepareGlobPattern(c.IncludePatterns)
 	if err != nil {
-		return nil, err
+		return nil
 	}
-	return glob.Compile(globPattern)
+	compiledGlob, err := glob.Compile(globPattern)
+	if err != nil {
+		log.Printf("Error compiling include glob pattern: %v", err)
+		return nil
+	}
+	return compiledGlob
 }
 
-func (c *Config) GetExcludeGlob() (glob.Glob, error) {
+func (c *Config) GetExcludeGlob() glob.Glob {
 	globPattern, err := prepareGlobPattern(c.ExcludePatterns)
 	if err != nil {
-		return nil, err
+		return nil
 	}
-	return glob.Compile(globPattern)
+	compiledGlob, err := glob.Compile(globPattern)
+	if err != nil {
+		log.Printf("Error compiling exclude glob pattern: %v", err)
+		return nil
+	}
+	return compiledGlob
 }
 
 func prepareGlobPattern(patterns []string) (string, error) {
