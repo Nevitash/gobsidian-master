@@ -1,6 +1,7 @@
 package file
 
 import (
+	"fmt"
 	"io/fs"
 	"log"
 	"nevitash/gobsidain-master/internal/configuration"
@@ -20,9 +21,33 @@ type File struct {
 	Parent        *File          `yaml:"parent"`
 	Children      []*File        `yaml:"children"`
 	Path          string         `yaml:"path"`
-	Content       string         `yaml:"content"`
 	FileExtension string         `yaml:"file-extension"`
 	Properties    []FileProperty `yaml:"properties"`
+}
+
+func (f *File) GetContent() (string, error) {
+	if exists, err := IsFile(f.Path); err == nil && exists {
+		return "", fmt.Errorf("Path %s is either not accessible, was deleted or is not a file.\r\nerror: %v", f.Path, err)
+	}
+	content, err := os.ReadFile(f.Path)
+	if err != nil {
+		return "", err
+	}
+	return string(content), nil
+}
+
+func IsFile(path string) (bool, error) {
+	if exists, err := FileExists(path); err == nil && exists {
+		return false, fmt.Errorf("File %s is either not accessible or was deleted\r\nerror: %v", path, err)
+	}
+	fi, err := os.Stat(path)
+	if err == nil {
+		return true, nil
+	}
+	if os.IsNotExist(err) {
+		return false, nil
+	}
+	return fi.Mode().IsRegular(), nil
 }
 
 func FileExists(path string) (bool, error) {
@@ -67,15 +92,6 @@ func makeMappingWalkFunction(result *File, includeGlob glob.Glob, excludeGlob gl
 		node := &File{
 			Path:          filepath.Base(path),
 			FileExtension: filepath.Ext(path),
-		}
-
-		if !dirEntry.IsDir() {
-			content, err := os.ReadFile(path)
-			if err == nil {
-				node.Content = string(content)
-			} else {
-				log.Printf("Failed to read file content for %s: %v", path, err)
-			}
 		}
 
 		// Determine parent path
