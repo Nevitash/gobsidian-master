@@ -69,7 +69,7 @@ func LoadVaultFile(path string, config *configuration.Config) (*File, error) {
 		Path:          path,
 		FileExtension: filepath.Ext(path),
 	}
-	var walkFunction = makeMappingWalkFunction(vault, config.GetIncludeGlob(), config.GetExcludeGlob())
+	var walkFunction = makeMappingWalkFunction(vault, config.GetIncludePathGlob(), config.GetExcludePathGlob())
 	filepath.WalkDir(path, walkFunction)
 	return vault, nil
 }
