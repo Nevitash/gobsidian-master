@@ -11,55 +11,6 @@ import (
 	"github.com/gobwas/glob"
 )
 
-type FileProperty struct {
-	Name  string `yaml:"name"`
-	Type  string `yaml:"type"`
-	Value string `yaml:"value"`
-}
-
-type File struct {
-	Parent        *File          `yaml:"parent"`
-	Children      []*File        `yaml:"children"`
-	Path          string         `yaml:"path"`
-	FileExtension string         `yaml:"file-extension"`
-	Properties    []FileProperty `yaml:"properties"`
-}
-
-func (f *File) GetFiles() ([]*File, error) {
-	var files []*File
-	for _, child := range f.Children {
-		isFile, err := child.IsFile()
-		if err != nil {
-			return nil, fmt.Errorf("error checking if path %s is file: %v", child.Path, err)
-		}
-		if !isFile {
-			childFiles, err := child.GetFiles()
-			if err != nil {
-				return nil, fmt.Errorf("error getting files from path %s: %v", child.Path, err)
-			}
-			files = append(files, childFiles...)
-		} else {
-			files = append(files, child)
-		}
-	}
-	return files, nil
-}
-
-func (f *File) IsFile() (bool, error) {
-	return f.FileExtension != "", nil
-}
-
-func (f *File) GetContent() (string, error) {
-	if exists, err := IsFile(f.Path); err == nil && exists {
-		return "", fmt.Errorf("path %s is either not accessible, was deleted or is not a file.\r\nerror: %v", f.Path, err)
-	}
-	content, err := os.ReadFile(f.Path)
-	if err != nil {
-		return "", err
-	}
-	return string(content), nil
-}
-
 func IsFile(path string) (bool, error) {
 	if exists, err := FileExists(path); err == nil && exists {
 		return false, fmt.Errorf("File %s is either not accessible or was deleted\r\nerror: %v", path, err)
