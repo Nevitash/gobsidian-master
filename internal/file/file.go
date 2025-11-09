@@ -25,6 +25,30 @@ type File struct {
 	Properties    []FileProperty `yaml:"properties"`
 }
 
+func (f *File) GetFiles() ([]*File, error) {
+	var files []*File
+	for _, child := range f.Children {
+		isFile, err := child.IsFile()
+		if err != nil {
+			return nil, fmt.Errorf("error checking if path %s is file: %v", child.Path, err)
+		}
+		if !isFile {
+			childFiles, err := child.GetFiles()
+			if err != nil {
+				return nil, fmt.Errorf("error getting files from path %s: %v", child.Path, err)
+			}
+			files = append(files, childFiles...)
+		} else {
+			files = append(files, child)
+		}
+	}
+	return files, nil
+}
+
+func (f *File) IsFile() (bool, error) {
+	return f.FileExtension != "", nil
+}
+
 func (f *File) GetContent() (string, error) {
 	if exists, err := IsFile(f.Path); err == nil && exists {
 		return "", fmt.Errorf("path %s is either not accessible, was deleted or is not a file.\r\nerror: %v", f.Path, err)
@@ -144,9 +168,4 @@ func ShouldBeProcessed(path string, include glob.Glob, exclude glob.Glob) bool {
 		return false
 	}
 	return true
-}
-
-func walkAndMapFiles(oath string, dirEntry fs.DirEntry, err error) error {
-	//TODO: implement this function
-	return nil
 }

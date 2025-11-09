@@ -89,9 +89,5 @@ func SaveConfig(config *Config) error {
 		return err
 	}
 	os.WriteFile(config.ConfigPath, ymlData, 0644)
-	if err != nil {
-		log.Printf("Can't save config to %s\r\nError: %v", config.ConfigPath, err)
-		return err
-	}
 	return nil
 }
