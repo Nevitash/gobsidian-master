@@ -69,12 +69,28 @@ func LoadVaultFile(path string, config *configuration.Config) (*File, error) {
 		Path:          path,
 		FileExtension: filepath.Ext(path),
 	}
-	var walkFunction = makeMappingWalkFunction(vault, config.GetIncludePathGlob(), config.GetExcludePathGlob())
+	incluidePathGlob := config.GetIncludePathGlob()
+	excludePathGlob := config.GetExcludePathGlob()
+	includeFileGlob := config.GetIncludeFileGlob()
+	excludeFileGlob := config.GetExcludeFileGlob()
+	var walkFunction = makeMappingWalkFunction(
+		vault,
+		incluidePathGlob,
+		excludePathGlob,
+		includeFileGlob,
+		excludeFileGlob,
+	)
 	filepath.WalkDir(path, walkFunction)
 	return vault, nil
 }
 
-func makeMappingWalkFunction(result *File, includeGlob glob.Glob, excludeGlob glob.Glob) func(string, fs.DirEntry, error) error {
+func makeMappingWalkFunction(
+	result *File,
+	includePathGlob glob.Glob,
+	excludePathGlob glob.Glob,
+	includeFileGlob glob.Glob,
+	excludeFileGlob glob.Glob,
+) func(string, fs.DirEntry, error) error {
 	fileMap := map[string]*File{
 		result.Path: result,
 	}
@@ -85,7 +101,10 @@ func makeMappingWalkFunction(result *File, includeGlob glob.Glob, excludeGlob gl
 			}
 			return err
 		}
-		if !shouldProcess(path, includeGlob, excludeGlob) {
+		if !ShouldBeProcessed(path, includePathGlob, excludePathGlob) {
+			return filepath.SkipDir
+		}
+		if !dirEntry.IsDir() && !ShouldBeProcessed(path, includeFileGlob, excludeFileGlob) {
 			return nil
 		}
 		// Build the File node
@@ -115,7 +134,7 @@ func makeMappingWalkFunction(result *File, includeGlob glob.Glob, excludeGlob gl
 	}
 }
 
-func shouldProcess(path string, include glob.Glob, exclude glob.Glob) bool {
+func ShouldBeProcessed(path string, include glob.Glob, exclude glob.Glob) bool {
 	if include != nil && !include.Match(path) {
 		log.Printf("Path %s didn't match include patterns", path)
 		return false

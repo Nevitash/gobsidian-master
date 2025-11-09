@@ -26,7 +26,9 @@ func setupConfiguration(configPath string) (*configuration.Config, error) {
 		log.Printf("No config file found. Creating a new one: %v", configPath)
 		config = &configuration.Config{
 			ConfigPath:          configPath,
-			IncludePathPatterns: []string{"*.md"},
+			IncludeFilePatterns: []string{"*.md"},
+			ExcludeFilePatterns: []string{"*.png", "*.jpg"},
+			ExcludePathPatterns: []string{"**/_*"},
 		}
 		err = configuration.SaveConfig(config)
 	}

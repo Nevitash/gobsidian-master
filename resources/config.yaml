@@ -1,5 +1,10 @@
-config-path: ./config.yaml
+config-path: ./resources/config.yaml
 vault-path: ""
-include-patterns:
+include-patterns: []
+exclude-patterns:
+    - '**/_*'
+include-file-patterns:
     - '*.md'
-exclude-patterns: []
+exclude-file-patterns:
+    - '*.png'
+    - '*.jpg'
