@@ -27,7 +27,7 @@ type File struct {
 
 func (f *File) GetContent() (string, error) {
 	if exists, err := IsFile(f.Path); err == nil && exists {
-		return "", fmt.Errorf("Path %s is either not accessible, was deleted or is not a file.\r\nerror: %v", f.Path, err)
+		return "", fmt.Errorf("path %s is either not accessible, was deleted or is not a file.\r\nerror: %v", f.Path, err)
 	}
 	content, err := os.ReadFile(f.Path)
 	if err != nil {
