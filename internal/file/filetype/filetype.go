@@ -59,3 +59,54 @@ func GetAllKnownFileTypes() []string {
 		PDF,
 	}
 }
+
+func GetTextFileTypes() []string {
+	return []string{
+		MARKDOWN,
+		TEXT,
+		JSON,
+		XML,
+		TOML,
+		YAML,
+	}
+}
+
+func GetImageFileTypes() []string {
+	return []string{
+		JPG,
+		JPEG,
+		PNG,
+		SVG,
+		BMP,
+	}
+}
+
+func GetApplicationFileTypes() []string {
+	return []string{
+		PDF,
+	}
+}
+
+func IsTextFile(filePath string) bool {
+	filetype, err := extractExtensionToCheck(filePath)
+	if err != nil {
+		return false
+	}
+	return slices.Contains(GetTextFileTypes(), filetype)
+}
+
+func IsImageFile(filePath string) bool {
+	filetype, err := extractExtensionToCheck(filePath)
+	if err != nil {
+		return false
+	}
+	return slices.Contains(GetImageFileTypes(), filetype)
+}
+
+func IsApplicationFile(filePath string) bool {
+	filetype, err := extractExtensionToCheck(filePath)
+	if err != nil {
+		return false
+	}
+	return slices.Contains(GetApplicationFileTypes(), filetype)
+}
