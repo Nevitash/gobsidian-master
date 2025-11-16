@@ -54,6 +54,7 @@ func LoadVaultFile(path string, config *configuration.Config) (*File, error) {
 		excludePathGlob,
 		includeFileGlob,
 		excludeFileGlob,
+		config,
 	)
 	filepath.WalkDir(path, walkFunction)
 	return vault, nil
@@ -65,6 +66,7 @@ func makeMappingWalkFunction(
 	excludePathGlob glob.Glob,
 	includeFileGlob glob.Glob,
 	excludeFileGlob glob.Glob,
+	configuration *configuration.Config,
 ) func(string, fs.DirEntry, error) error {
 	fileMap := map[string]*File{
 		result.Path: result,
@@ -82,10 +84,14 @@ func makeMappingWalkFunction(
 		if !dirEntry.IsDir() && !ShouldBeProcessed(path, includeFileGlob, excludeFileGlob) {
 			return nil
 		}
+		if result.Path == path {
+			return nil
+		}
 		// Build the File node
 		node := &File{
-			Path:          filepath.Base(path),
+			Path:          path,
 			FileExtension: filepath.Ext(path),
+			Config:        configuration,
 		}
 
 		// Determine parent path

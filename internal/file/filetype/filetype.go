@@ -25,11 +25,6 @@ const (
 	PDF string = "pdf"
 )
 
-// func IsTextFile(text string) {
-// 	var toCheck string
-// 	toCheck = filepath.Ext(text)
-// }
-
 func extractExtensionToCheck(text string) (string, error) {
 	extension := filepath.Ext(text)
 	if extension != "" {

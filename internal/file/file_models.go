@@ -2,6 +2,7 @@ package file
 
 import (
 	"fmt"
+	"nevitash/gobsidain-master/internal/configuration"
 	"os"
 )
 
@@ -12,11 +13,12 @@ type FileProperty struct {
 }
 
 type File struct {
-	Parent        *File          `yaml:"parent"`
-	Children      []*File        `yaml:"children"`
-	Path          string         `yaml:"path"`
-	FileExtension string         `yaml:"file-extension"`
-	Properties    []FileProperty `yaml:"properties"`
+	Parent        *File                 `yaml:"parent"`
+	Children      []*File               `yaml:"children"`
+	Path          string                `yaml:"path"`
+	FileExtension string                `yaml:"file-extension"`
+	Properties    []FileProperty        `yaml:"properties"`
+	Config        *configuration.Config `yaml:"-"`
 }
 
 func (f *File) GetFiles() ([]*File, error) {
