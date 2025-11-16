@@ -1,9 +1,14 @@
 package file
 
 import (
+	"nevitash/gobsidain-master/internal/configuration"
+	"os"
+	"path/filepath"
+	"slices"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestGetFiles(t *testing.T) {
@@ -27,4 +32,66 @@ func TestGetFiles(t *testing.T) {
 	assert.Equal(t, expectedFiles, foundFiles, "GetFiles should return [./level1-folder1/level1-file1.md, "+
 		"./level1-folder1/level2-folder1/level2-file1.md, "+
 		" ./level1-folder1/level2-folder1/level2-file2.md]")
+}
+
+func Test_makeMappingWalkFunction_withFakeEntries(t *testing.T) {
+	rootDir := t.TempDir()
+	level1Dir := filepath.Join(rootDir, "level1-folder")
+	level2Dir := filepath.Join(level1Dir, "level2-folder")
+	err := os.MkdirAll(level2Dir, os.ModePerm)
+	require.NoError(t, err, "should create test directories without error")
+
+	level1File1Path := filepath.Join(level1Dir, "level1-file1.md")
+	level2File1Path := filepath.Join(level2Dir, "level2-file1.txt")
+	level2File2Path := filepath.Join(level2Dir, "level2-file2.jpg")
+
+	err = os.WriteFile(level1File1Path, []byte("Level 1 File 1 Content"), os.ModePerm)
+	require.NoError(t, err, "should create level1-file1.md without error")
+	err = os.WriteFile(level2File1Path, []byte("Level 2 File 1 Content"), os.ModePerm)
+	require.NoError(t, err, "should create level2-file1.txt without error")
+	err = os.WriteFile(level2File2Path, []byte("Level 2 File 2 Content"), os.ModePerm)
+	require.NoError(t, err, "should create level2-file2.md without error")
+	config := &configuration.Config{
+		IncludeFilePatterns: []string{"*.md,*.txt"},
+		ExcludeFilePatterns: []string{"*.png", "*.jpg"},
+		ExcludePathPatterns: []string{"**/_*"},
+	}
+	vault, err := LoadVaultFile(rootDir, config)
+	require.NoError(t, err, "LoadVaultFile should not return an error")
+	assert.Equal(t, rootDir, vault.Path)
+	assert.Equal(t, 1, len(vault.Children))
+	assert.Equal(t, level1Dir, vault.Children[0].Path)
+	assert.Equal(t, 2, len(vault.Children[0].Children))
+	assert.True(t, slices.ContainsFunc(
+		vault.Children[0].Children,
+		func(f *File) bool {
+			return f.Path == level1File1Path
+		}),
+		"level1-file1.md should be included",
+	)
+	assert.True(t, slices.ContainsFunc(
+		vault.Children[0].Children,
+		func(f *File) bool {
+			return f.Path == level2Dir
+		}),
+		"level2-folder should be included",
+	)
+	indexLevel2Dir := slices.IndexFunc(vault.Children[0].Children, func(f *File) bool {
+		return f.Path == level2Dir
+	})
+	require.Greater(t, indexLevel2Dir, -1, "level2-folder should be a child of level1-folder")
+	assert.True(t, slices.ContainsFunc(
+		vault.Children[0].Children[indexLevel2Dir].Children,
+		func(f *File) bool {
+			return f.Path == level2File1Path
+		}),
+		"level2-file1.txt should be included",
+	)
+	assert.False(t, slices.ContainsFunc(
+		vault.Children[0].Children[indexLevel2Dir].Children,
+		func(f *File) bool {
+			return f.Path == level2File2Path
+		}),
+		"level2-file2.jpg should be excluded",
+	)
 }
