@@ -1,4 +1,4 @@
-module nevitash/gobsidain-master
+module github.com/Nevitash/gobsidian-master
 
 go 1.24.5
 
