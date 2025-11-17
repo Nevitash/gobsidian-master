@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 	"strings"
+	"text/template"
 
 	"github.com/gobwas/glob"
 	"gopkg.in/yaml.v3"
@@ -17,13 +18,14 @@ type Flags struct {
 var config *Config
 
 type Config struct {
-	ConfigPath          string   `yaml:"config-path"`
-	VaultPath           string   `yaml:"vault-path"`
-	IncludePathPatterns []string `yaml:"include-patterns"`
-	ExcludePathPatterns []string `yaml:"exclude-patterns"`
-	IncludeFilePatterns []string `yaml:"include-file-patterns"`
-	ExcludeFilePatterns []string `yaml:"exclude-file-patterns"`
-	Flags               Flags    `yaml:"flags"`
+	ConfigPath          string            `yaml:"config-path"`
+	VaultPath           string            `yaml:"vault-path"`
+	IncludePathPatterns []string          `yaml:"include-patterns"`
+	ExcludePathPatterns []string          `yaml:"exclude-patterns"`
+	IncludeFilePatterns []string          `yaml:"include-file-patterns"`
+	ExcludeFilePatterns []string          `yaml:"exclude-file-patterns"`
+	Flags               Flags             `yaml:"flags"`
+	CombineTemplate     template.Template `yaml:"-"`
 }
 
 func (c *Config) GetIncludePathGlob() glob.Glob {

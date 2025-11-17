@@ -139,11 +139,7 @@ func CombineVault(vault *File, config *configuration.Config) (string, error) {
 	var templateData = &TemplateData{
 		Files: files,
 	}
-	mergedTemplate, err := template.GetDefaultTemplate()
-	if err != nil {
-		return "", fmt.Errorf("failed to load default template: %v", err)
-	}
-	content, err := template.RenderTemplate(mergedTemplate, templateData)
+	content, err := template.RenderTemplate(&config.CombineTemplate, templateData)
 	if err != nil {
 		return "", fmt.Errorf("failed to render template: %v", err)
 	}

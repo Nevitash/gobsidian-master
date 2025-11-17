@@ -1,5 +1,4 @@
-{{range .Files}}
----
+{{range .Files}}---
 # {{.Path}}
 ---
 {{.GetContent}}

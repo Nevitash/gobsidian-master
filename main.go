@@ -5,13 +5,15 @@ import (
 	"log"
 	"nevitash/gobsidain-master/internal/configuration"
 	"nevitash/gobsidain-master/internal/file"
+	"nevitash/gobsidain-master/internal/template"
 	"os"
 )
 
 const (
-	DEFAULT_PATH_CONFIG = "./resources/config.yaml"
-	DEFAULT_PATH_VAULT  = "./resources/vault"
-	DEFAULT_PATH_OUTPUT = "./resources/output/mega_vault.md"
+	DEFAULT_PATH_CONFIG          = "./resources/config.yaml"
+	DEFAULT_PATH_VAULT           = "./resources/vault"
+	DEFAULT_PATH_OUTPUT          = "./resources/output/mega_vault.md"
+	DEFAULT_TEMPLATE_PATH string = "./resources/template.md"
 )
 
 func main() {
@@ -20,6 +22,11 @@ func main() {
 	if err != nil {
 		log.Fatalf("Failed to setup configuration: %v", err)
 	}
+	template, err := template.GetTemplate(DEFAULT_TEMPLATE_PATH)
+	if err != nil {
+		log.Fatalf("Failed to load template: %v", err)
+	}
+	config.CombineTemplate = *template
 	configuration.SetConfig(config)
 	vault, err := loadVault(DEFAULT_PATH_VAULT, configuration.GetConfig())
 	if err != nil {

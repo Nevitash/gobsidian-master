@@ -6,6 +6,7 @@ import (
 	"path/filepath"
 	"slices"
 	"testing"
+	"text/template"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -141,4 +142,60 @@ tags:
   - **Item Two** (📍 🔍): A description of the second item with additional context.
   - **Item Three** (⚙️ 🎯): A description of the third item with supporting information.`
 	assert.Equal(t, expected, result, "Headings should be prefixed correctly")
+}
+
+func TestCombineVault(t *testing.T) {
+	rootDir := t.TempDir()
+	level1Dir := filepath.Join(rootDir, "level1-folder")
+	level2Dir := filepath.Join(level1Dir, "level2-folder")
+	err := os.MkdirAll(level2Dir, os.ModePerm)
+	require.NoError(t, err, "should create test directories without error")
+
+	level1File1Path := filepath.Join(level1Dir, "level1-file1.md")
+	level2File1Path := filepath.Join(level2Dir, "level2-file1.md")
+
+	err = os.WriteFile(level1File1Path, []byte("# Level 1 File 1\nContent of level 1 file."), os.ModePerm)
+	require.NoError(t, err, "should create level1-file1.md without error")
+	err = os.WriteFile(level2File1Path, []byte("# Level 2 File 1\nContent of level 2 file."), os.ModePerm)
+	require.NoError(t, err, "should create level2-file1.md without error")
+
+	template, err := getCombineTemplate()
+	require.NoError(t, err, "getCombineTemplate should not return an error")
+
+	config := &configuration.Config{
+		IncludeFilePatterns: []string{"*.md"},
+		ExcludeFilePatterns: []string{},
+		ExcludePathPatterns: []string{},
+		CombineTemplate:     *template,
+		Flags: configuration.Flags{
+			PrefixHeadings: true,
+		},
+	}
+	vault, err := LoadVaultFile(rootDir, config)
+	require.NoError(t, err, "LoadVaultFile should not return an error")
+
+	combinedContent, err := CombineVault(vault, config)
+	require.NoError(t, err, "CombineVault should not return an error")
+
+	var expectedContent string = "---\n" +
+		"# " + level1File1Path + "\n" +
+		"---\n" +
+		"## Level 1 File 1\nContent of level 1 file.\n" +
+		"---\n" +
+		"---\n" +
+		"# " + level2File1Path + "\n" +
+		"---\n" +
+		"## Level 2 File 1\nContent of level 2 file.\n" +
+		"---\n"
+	assert.Equal(t, expectedContent, combinedContent, "Combined content should match expected output")
+}
+
+func getCombineTemplate() (*template.Template, error) {
+	const templateContent = `{{range .Files}}---
+# {{.Path}}
+---
+{{.GetContent}}
+---
+{{end}}`
+	return template.New("template").Parse(templateContent)
 }
