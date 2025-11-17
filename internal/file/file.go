@@ -5,6 +5,7 @@ import (
 	"io/fs"
 	"log"
 	"nevitash/gobsidain-master/internal/configuration"
+	"nevitash/gobsidain-master/internal/template"
 	"os"
 	"path/filepath"
 
@@ -125,4 +126,26 @@ func ShouldBeProcessed(path string, include glob.Glob, exclude glob.Glob) bool {
 		return false
 	}
 	return true
+}
+
+func CombineVault(vault *File, config *configuration.Config) (string, error) {
+	if vault == nil {
+		return "", fmt.Errorf("vault is nil")
+	}
+	files, err := vault.GetFiles()
+	if err != nil {
+		return "", fmt.Errorf("no files matching criteria in vault: %v", err)
+	}
+	var templateData = &TemplateData{
+		Files: files,
+	}
+	mergedTemplate, err := template.GetDefaultTemplate()
+	if err != nil {
+		return "", fmt.Errorf("failed to load default template: %v", err)
+	}
+	content, err := template.RenderTemplate(mergedTemplate, templateData)
+	if err != nil {
+		return "", fmt.Errorf("failed to render template: %v", err)
+	}
+	return content, nil
 }

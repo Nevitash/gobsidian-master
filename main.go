@@ -5,10 +5,14 @@ import (
 	"log"
 	"nevitash/gobsidain-master/internal/configuration"
 	"nevitash/gobsidain-master/internal/file"
+	"os"
 )
 
-var DEFAULT_PATH_CONFIG = "./resources/config.yaml"
-var DEFAULT_PATH_VAULT = "./resources/vault"
+const (
+	DEFAULT_PATH_CONFIG = "./resources/config.yaml"
+	DEFAULT_PATH_VAULT  = "./resources/vault"
+	DEFAULT_PATH_OUTPUT = "./resources/output/mega_vault.md"
+)
 
 func main() {
 	configPath := DEFAULT_PATH_CONFIG
@@ -17,11 +21,19 @@ func main() {
 		log.Fatalf("Failed to setup configuration: %v", err)
 	}
 	configuration.SetConfig(config)
-	vault, err := file.LoadVaultFile(DEFAULT_PATH_VAULT, configuration.GetConfig())
+	vault, err := loadVault(DEFAULT_PATH_VAULT, configuration.GetConfig())
 	if err != nil {
-		log.Printf("Could not load vault from %s", DEFAULT_PATH_VAULT)
+		log.Fatalf("Failed to load vault: %v", err)
 	}
-	fmt.Printf("Vault loaded from %s: %+v\n", DEFAULT_PATH_VAULT, vault)
+	combinedContent, err := file.CombineVault(vault, configuration.GetConfig())
+	if err != nil {
+		log.Fatalf("Failed to combine vault: %v", err)
+	}
+	err = os.WriteFile(DEFAULT_PATH_OUTPUT, []byte(combinedContent), 0644)
+	if err != nil {
+		log.Fatalf("Failed to write output file: %v", err)
+	}
+	fmt.Printf("Combined vault written to %s\n", DEFAULT_PATH_OUTPUT)
 }
 
 func setupConfiguration(configPath string) (*configuration.Config, error) {
@@ -37,4 +49,13 @@ func setupConfiguration(configPath string) (*configuration.Config, error) {
 	}
 	log.Printf("Config loaded: %+v", config)
 	return config, nil
+}
+
+func loadVault(vaultPath string, config *configuration.Config) (*file.File, error) {
+	vault, err := file.LoadVaultFile(vaultPath, config)
+	if err != nil {
+		log.Printf("Could not load vault from %s", DEFAULT_PATH_VAULT)
+	}
+	fmt.Printf("Vault loaded from %s: %+v\n", DEFAULT_PATH_VAULT, vault)
+	return vault, nil
 }

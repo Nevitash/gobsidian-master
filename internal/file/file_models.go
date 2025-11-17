@@ -13,6 +13,10 @@ type FileProperty struct {
 	Value string `yaml:"value"`
 }
 
+type TemplateData struct {
+	Files []*File
+}
+
 const (
 	PATTERN_HEADER_DETECTION    string = `(?m)^(#+)`
 	PATTERN_HEADER_SUBSTITUTION string = `#$1`

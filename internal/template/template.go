@@ -4,14 +4,9 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
-	"nevitash/gobsidain-master/internal/file"
 	"os"
 	"text/template"
 )
-
-type TemplateData struct {
-	Files []file.File
-}
 
 const (
 	DEFAULT_TEMPLATE_PATH string = "./resources/template.md"
@@ -33,7 +28,7 @@ func GetTemplate(path string) (*template.Template, error) {
 	return template.New("template").Parse(string(content))
 }
 
-func RenderTemplate(template *template.Template, data TemplateData) (string, error) {
+func RenderTemplate(template *template.Template, data any) (string, error) {
 	if template == nil {
 		var err error
 		template, err = GetDefaultTemplate()
@@ -47,10 +42,4 @@ func RenderTemplate(template *template.Template, data TemplateData) (string, err
 		return "", errors.New("error rendering template: " + err.Error())
 	}
 	return buffer.String(), nil
-}
-
-func NewTemplateData(files []file.File) TemplateData {
-	return TemplateData{
-		Files: files,
-	}
 }

@@ -2,6 +2,6 @@
 ---
 # {{.Path}}
 ---
-{{.ReadContent}}  // <--- Changed from {{.Content}}
+{{.GetContent}}
 ---
 {{end}}
