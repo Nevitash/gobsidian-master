@@ -10,6 +10,10 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
+type Flags struct {
+	PrefixHeadings bool `yaml:"prefix-headings"`
+}
+
 var config *Config
 
 type Config struct {
@@ -19,6 +23,7 @@ type Config struct {
 	ExcludePathPatterns []string `yaml:"exclude-patterns"`
 	IncludeFilePatterns []string `yaml:"include-file-patterns"`
 	ExcludeFilePatterns []string `yaml:"exclude-file-patterns"`
+	Flags               Flags    `yaml:"flags"`
 }
 
 func (c *Config) GetIncludePathGlob() glob.Glob {
@@ -90,4 +95,16 @@ func SaveConfig(config *Config) error {
 	}
 	os.WriteFile(config.ConfigPath, ymlData, 0644)
 	return nil
+}
+
+func NewDefaultConfig(configPath string) *Config {
+	return &Config{
+		ConfigPath:          configPath,
+		IncludeFilePatterns: []string{"*.md"},
+		ExcludeFilePatterns: []string{"*.png", "*.jpg"},
+		ExcludePathPatterns: []string{"**/_*", "**/.*"},
+		Flags: Flags{
+			PrefixHeadings: true,
+		},
+	}
 }

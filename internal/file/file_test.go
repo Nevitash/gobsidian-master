@@ -95,3 +95,50 @@ func Test_makeMappingWalkFunction_withFakeEntries(t *testing.T) {
 		"level2-file2.jpg should be excluded",
 	)
 }
+
+func TestPrefixHeadings(t *testing.T) {
+	var content string = `---
+tags:
+  - Sample
+  - Tag
+---
+# Main Title
+
+# Section One
+## Subsection One
+- First point about the topic
+- Second point about the topic
+
+# Section Two
+- Another important note
+- Related information here
+- More details with reference [[Link]]
+![Sample](image.svg)
+- **Category One (Description)**
+  - **Item One** (🏷️ 📝): A description of the first item with relevant details.
+  - **Item Two** (📍 🔍): A description of the second item with additional context.
+  - **Item Three** (⚙️ 🎯): A description of the third item with supporting information.`
+	result := prefixHeaders(content)
+	var expected string = `---
+tags:
+  - Sample
+  - Tag
+---
+## Main Title
+
+## Section One
+### Subsection One
+- First point about the topic
+- Second point about the topic
+
+## Section Two
+- Another important note
+- Related information here
+- More details with reference [[Link]]
+![Sample](image.svg)
+- **Category One (Description)**
+  - **Item One** (🏷️ 📝): A description of the first item with relevant details.
+  - **Item Two** (📍 🔍): A description of the second item with additional context.
+  - **Item Three** (⚙️ 🎯): A description of the third item with supporting information.`
+	assert.Equal(t, expected, result, "Headings should be prefixed correctly")
+}

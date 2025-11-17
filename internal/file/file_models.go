@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"nevitash/gobsidain-master/internal/configuration"
 	"os"
+	"regexp"
 )
 
 type FileProperty struct {
@@ -11,6 +12,11 @@ type FileProperty struct {
 	Type  string `yaml:"type"`
 	Value string `yaml:"value"`
 }
+
+const (
+	PATTERN_HEADER_DETECTION    string = `(?m)^(#+)`
+	PATTERN_HEADER_SUBSTITUTION string = `#$1`
+)
 
 type File struct {
 	Parent        *File                 `yaml:"parent"`
@@ -53,5 +59,14 @@ func (f *File) GetContent() (string, error) {
 	if err != nil {
 		return "", err
 	}
-	return string(content), nil
+	stringContent := string(content)
+	if f.Config != nil && f.Config.Flags.PrefixHeadings {
+		stringContent = prefixHeaders(stringContent)
+	}
+	return stringContent, nil
+}
+
+func prefixHeaders(content string) string {
+	replacer := regexp.MustCompile(PATTERN_HEADER_DETECTION)
+	return replacer.ReplaceAllString(content, PATTERN_HEADER_SUBSTITUTION)
 }
