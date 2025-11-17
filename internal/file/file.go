@@ -4,11 +4,12 @@ import (
 	"fmt"
 	"io/fs"
 	"log"
-	"nevitash/gobsidain-master/internal/configuration"
-	"nevitash/gobsidain-master/internal/template"
 	"os"
 	"path/filepath"
 
+	"github.com/Nevitash/gobsidian-master/internal/configuration"
+
+	"github.com/Nevitash/gobsidian-master/internal/template"
 	"github.com/gobwas/glob"
 )
 

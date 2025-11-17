@@ -1,13 +1,13 @@
 package file
 
 import (
-	"nevitash/gobsidain-master/internal/configuration"
 	"os"
 	"path/filepath"
 	"slices"
 	"testing"
 	"text/template"
 
+	"github.com/Nevitash/gobsidian-master/internal/configuration"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

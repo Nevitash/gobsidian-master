@@ -2,9 +2,10 @@ package file
 
 import (
 	"fmt"
-	"nevitash/gobsidain-master/internal/configuration"
 	"os"
 	"regexp"
+
+	"github.com/Nevitash/gobsidian-master/internal/configuration"
 )
 
 type FileProperty struct {
