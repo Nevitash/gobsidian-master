@@ -7,7 +7,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/Nevitash/gobsidian-master/internal/configuration"
+	"github.com/Nevitash/gobsidian-master/public/configuration"
 
 	"github.com/Nevitash/gobsidian-master/internal/template"
 	"github.com/gobwas/glob"
