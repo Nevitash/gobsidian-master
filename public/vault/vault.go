@@ -28,6 +28,9 @@ func MergeToFile(
 
 func MergeToFileWithConfig(outputPath string, config *configuration.Config) (string, error) {
 	content, err := MergeToStringWithConfig(outputPath, config)
+	if err != nil {
+		return "", err
+	}
 	if err := os.MkdirAll(filepath.Dir(outputPath), 0o755); err != nil {
 		return "", err
 	}
