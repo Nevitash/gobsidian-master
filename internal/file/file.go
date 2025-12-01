@@ -7,7 +7,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/Nevitash/gobsidian-master/public/configuration"
+	"github.com/Nevitash/gobsidian-master/internal/configuration"
 
 	"github.com/Nevitash/gobsidian-master/internal/template"
 	"github.com/gobwas/glob"
@@ -46,6 +46,7 @@ func LoadVaultFile(path string, config *configuration.Config) (*File, error) {
 		Path:          path,
 		FileExtension: filepath.Ext(path),
 	}
+	config.VaultPath = path
 	incluidePathGlob := config.GetIncludePathGlob()
 	excludePathGlob := config.GetExcludePathGlob()
 	includeFileGlob := config.GetIncludeFileGlob()

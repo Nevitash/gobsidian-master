@@ -5,7 +5,7 @@ import (
 	"os"
 	"regexp"
 
-	"github.com/Nevitash/gobsidian-master/public/configuration"
+	"github.com/Nevitash/gobsidian-master/internal/configuration"
 )
 
 type FileProperty struct {

@@ -7,7 +7,7 @@ import (
 	"testing"
 	"text/template"
 
-	"github.com/Nevitash/gobsidian-master/public/configuration"
+	"github.com/Nevitash/gobsidian-master/internal/configuration"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
