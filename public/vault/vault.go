@@ -5,8 +5,9 @@ import (
 	"path/filepath"
 	"text/template"
 
-	"github.com/Nevitash/gobsidian-master/internal/configuration"
+	internalConfig "github.com/Nevitash/gobsidian-master/internal/configuration"
 	"github.com/Nevitash/gobsidian-master/internal/file"
+	"github.com/Nevitash/gobsidian-master/public/configuration"
 )
 
 func MergeToFile(
@@ -41,6 +42,20 @@ func MergeToFileWithConfig(outputPath string, config *configuration.Config) (str
 	return content, nil
 }
 
+func mapPublicToInternalConfig(config *configuration.Config) *internalConfig.Config {
+	return &internalConfig.Config{
+		VaultPath:           config.VaultPath,
+		IncludePathPatterns: config.IncludePathPatterns,
+		ExcludePathPatterns: config.ExcludePathPatterns,
+		IncludeFilePatterns: config.IncludeFilePatterns,
+		ExcludeFilePatterns: config.ExcludeFilePatterns,
+		Flags: internalConfig.Flags{
+			PrefixHeadings: config.Flags.PrefixHeadings,
+		},
+		CombineTemplate: config.CombineTemplate,
+	}
+}
+
 func MergeToString(
 	vaultPath string,
 	outputPath string,
@@ -59,11 +74,12 @@ func MergeToString(
 }
 
 func MergeToStringWithConfig(outputPath string, config *configuration.Config) (string, error) {
-	vault, err := file.LoadVaultFile(config.VaultPath, config)
+	intConfig := mapPublicToInternalConfig(config)
+	vault, err := file.LoadVaultFile(config.VaultPath, intConfig)
 	if err != nil {
 		return "", err
 	}
-	content, err := file.CombineVault(vault, config)
+	content, err := file.CombineVault(vault, intConfig)
 	if err != nil {
 		return "", err
 	}
@@ -104,7 +120,6 @@ func CreateConfig(
 		outputTemplate = defaultTemplate
 	}
 	return &configuration.Config{
-		ConfigPath:          "./config.yaml",
 		VaultPath:           vaultPath,
 		IncludePathPatterns: includePathPatterns,
 		ExcludePathPatterns: excludePathPatterns,
