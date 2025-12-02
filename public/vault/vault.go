@@ -118,7 +118,7 @@ func getDefaultOutputTemplateString() string {
 	return `{{range .Files}}---
 # {{.Path}}
 ---
-{{.GetContent}}
+{{.GetContent -}}
 ---
 {{end}}`
 }
