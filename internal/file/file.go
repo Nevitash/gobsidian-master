@@ -138,6 +138,9 @@ func CombineVault(vault *File, config *configuration.Config) (string, error) {
 	if err != nil {
 		return "", fmt.Errorf("no files matching criteria in vault: %v", err)
 	}
+	for _, file := range files {
+		file.Path = filepath.ToSlash(file.Path)
+	}
 	var templateData = &TemplateData{
 		Files: files,
 	}
