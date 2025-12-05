@@ -47,10 +47,6 @@ func LoadVaultFile(path string, config *configuration.Config) (*File, error) {
 		FileExtension: filepath.Ext(path),
 	}
 	path = filepath.Clean(path)
-	path, err := filepath.Abs(path)
-	if err != nil {
-		return nil, err
-	}
 	config.VaultPath = path
 	incluidePathGlob := config.GetIncludePathGlob()
 	excludePathGlob := config.GetExcludePathGlob()
