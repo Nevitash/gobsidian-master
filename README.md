@@ -1,4 +1,4 @@
-﻿# Gobsidian Master _(gobsidian-master)_
+# Gobsidian Master _(gobsidian-master)_
 
 [![standard-readme compliant](https://img.shields.io/badge/readme%20style-standard-brightgreen.svg?style=flat-square)](https://github.com/RichardLitt/standard-readme)
 
@@ -24,15 +24,15 @@ Obsidian notes use interconnected markdown files and links. Consolidating or pre
 
 Requires Go 1.25+:
 
-`ash
+```bash
 go get github.com/Nevitash/gobsidian-master@latest
-`
+```
 
 ## Usage
 
 Import and call vault merge methods directly in your Go code:
 
-`go
+```go
 package main
 
 import (
@@ -56,16 +56,16 @@ func main() {
 	}
 	log.Printf("Merged output written: %s", output)
 }
-`
+```
 
 ## API
 
-### ault.MergeToFile(vaultPath, outputPath, includeFilePatterns, excludeFilePatterns, includePathPatterns, excludePathPatterns, flags, outputTemplate)
+### `vault.MergeToFile(vaultPath, outputPath, includeFilePatterns, excludeFilePatterns, includePathPatterns, excludePathPatterns, flags, outputTemplate)`
 
-- Merges all matching markdown files in aultPath into outputPath.
+- Merges all matching markdown files in `vaultPath` into `outputPath`.
 - Returns: (string, error)
 
-### ault.MergeToStringWithConfig(outputPath, config)
+### `vault.MergeToStringWithConfig(outputPath, config)`
 
 - Compiles vault content into an in-memory formatted markdown string.
 - Returns: (string, error)
